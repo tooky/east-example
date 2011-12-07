@@ -83,10 +83,17 @@ end
 module East
   class BirthdayPresentSelector
     def initialize(customer, today = Date.today)
+      @customer = customer
     end
 
     def deliver_present_with(delivery_service)
-      delivery_service.deliver(:flowers)
+      delivery_service.deliver(present)
+    end
+
+    private
+    def present
+      return :cufflinks if @customer.male?
+      :flowers
     end
   end
 end
