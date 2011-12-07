@@ -14,4 +14,14 @@ module NonEast
       end
     end
   end
+
+  class BirthdayPresentSelector
+    attr_reader :customer
+    def initialize(customer, today = Date.today)
+    end
+
+    def present
+      :flowers
+    end
+  end
 end
