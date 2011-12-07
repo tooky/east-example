@@ -19,6 +19,14 @@ module NonEast
         selector = BirthdayPresentSelector.new(customer, today)
         selector.present.should == :cufflinks
       end
+
+      it 'sends nothing to a female customer when it is not their birthday' do
+        tomorrow_20_years_ago = Date.parse("1991-10-10")
+        customer = double(sex: :female, date_of_birth: tomorrow_20_years_ago)
+
+        selector = BirthdayPresentSelector.new(customer, today)
+        selector.present.should == :none
+      end
     end
   end
 
