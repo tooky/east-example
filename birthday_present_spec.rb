@@ -2,74 +2,80 @@ require 'date'
 
 describe 'sending a birthday present to a customer' do
   let(:today) { Date.parse("2011-10-09") }
-  context 'non-east customers' do
+  context 'non-east' do
+    subject { NonEast::BirthdayPresentSelector.new(customer, today) }
     let(:tomorrow_20_years_ago) { Date.parse("1991-10-10") }
     let(:today_20_years_ago) { Date.parse("1991-10-09") }
 
-    it 'sends flowers to a female customer on their birthday' do
-      customer = double(sex: :female, date_of_birth: today_20_years_ago)
+    context 'female customer' do
+      let(:customer) { double(sex: :female) }
 
-      selector = NonEast::BirthdayPresentSelector.new(customer, today)
-      selector.present.should == :flowers
+      it 'receives flowers on her birthday' do
+        customer.stub(date_of_birth: today_20_years_ago)
+        subject.present.should == :flowers
+      end
+
+      it 'receives nothing when it is not his birthday' do
+        customer.stub(date_of_birth: tomorrow_20_years_ago)
+        subject.present.should == :none
+      end
     end
 
-    it 'sends cufflinks to a male customer on their birthday' do
-      customer = double(sex: :male, date_of_birth: today_20_years_ago)
+    context 'male customer' do
+      let(:customer) { double(sex: :male) }
 
-      selector = NonEast::BirthdayPresentSelector.new(customer, today)
-      selector.present.should == :cufflinks
+      it 'receives cufflinks when it is his birthday' do
+        customer.stub(date_of_birth: today_20_years_ago)
+        subject.present.should == :cufflinks
+      end
+
+      it 'receives nothing when it is not his birthday' do
+        customer.stub(date_of_birth: tomorrow_20_years_ago)
+        subject.present.should == :none
+      end
     end
 
-    it 'sends nothing to a female customer when it is not their birthday' do
-      customer = double(sex: :female, date_of_birth: tomorrow_20_years_ago)
-
-      selector = NonEast::BirthdayPresentSelector.new(customer, today)
-      selector.present.should == :none
-    end
-
-    it 'sends nothing to a male customer when it is not their birthday' do
-      customer = double(sex: :male, date_of_birth: tomorrow_20_years_ago)
-
-      selector = NonEast::BirthdayPresentSelector.new(customer, today)
-      selector.present.should == :none
-    end
   end
 
-  context 'east customers' do
+  context 'east' do
+    subject { East::BirthdayPresentSelector.new(customer, today) }
+    let(:delivery_service) { double }
     let(:boy) { double(male?: true) }
     let(:girl) { double(male?: false) }
-    let(:delivery_service) { double }
 
-    it 'sends flowers to a female customer on their birthday' do
-      girl.stub(:birthday_on?).with(today) { true }
-      selector = East::BirthdayPresentSelector.new(girl, today)
+    context 'female customer' do
+      let(:customer) { girl }
+      it 'receives flowers on her birthday' do
+        girl.stub(:birthday_on?).with(today) { true }
 
-      delivery_service.should_receive(:deliver).with(:flowers)
-      selector.send_present(delivery_service)
+        delivery_service.should_receive(:deliver).with(:flowers)
+        subject.send_present(delivery_service)
+      end
+
+      it 'does not receive a present when it is not her birthday' do
+        girl.stub(:birthday_on?).with(today) { false }
+
+        delivery_service.should_not_receive(:deliver)
+        subject.send_present(delivery_service)
+      end
     end
 
-    it 'sends cufflinks to a male customer on their birthday' do
-      boy.stub(:birthday_on?).with(today) { true }
-      selector = East::BirthdayPresentSelector.new(boy, today)
+    context 'male customer' do
+      let(:customer) { boy }
 
-      delivery_service.should_receive(:deliver).with(:cufflinks)
-      selector.send_present(delivery_service)
-    end
+      it 'receives cufflinks on his birthday' do
+        boy.stub(:birthday_on?).with(today) { true }
 
-    it 'does not send a present to a female customer when it is not their birthday' do
-      girl.stub(:birthday_on?).with(today) { false }
-      selector = East::BirthdayPresentSelector.new(girl, today)
+        delivery_service.should_receive(:deliver).with(:cufflinks)
+        subject.send_present(delivery_service)
+      end
 
-      delivery_service.should_not_receive(:deliver)
-      selector.send_present(delivery_service)
-    end
+      it 'does not receive a present when it is not his birthday' do
+        boy.stub(:birthday_on?).with(today) { false }
 
-    it 'does not send a present to a male customer when it is not their birthday' do
-      boy.stub(:birthday_on?).with(today) { false }
-      selector = East::BirthdayPresentSelector.new(boy, today)
-
-      delivery_service.should_not_receive(:deliver)
-      selector.send_present(delivery_service)
+        delivery_service.should_not_receive(:deliver)
+        subject.send_present(delivery_service)
+      end
     end
   end
 end
@@ -81,20 +87,20 @@ module NonEast
       @today = today
     end
 
-    def present
-      return selected_present if birthday_today?
-      :none
-    end
+  def present
+    return selected_present if birthday_today?
+    :none
+  end
 
-    private
-    def selected_present
-      return :cufflinks if @customer.sex == :male
-      :flowers
-    end
+  private
+  def selected_present
+    return :cufflinks if @customer.sex == :male
+    :flowers
+  end
 
-    def birthday_today?
-      @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
-    end
+  def birthday_today?
+    @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
+  end
   end
 end
 
@@ -105,14 +111,14 @@ module East
       @today = today
     end
 
-    def send_present(delivery_service)
-      delivery_service.deliver(present) if @customer.birthday_on?(@today)
-    end
+  def send_present(delivery_service)
+    delivery_service.deliver(present) if @customer.birthday_on?(@today)
+  end
 
-    private
-    def present
-      return :cufflinks if @customer.male?
-      :flowers
-    end
+  private
+  def present
+    return :cufflinks if @customer.male?
+    :flowers
+  end
   end
 end
