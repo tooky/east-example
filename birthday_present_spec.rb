@@ -39,7 +39,6 @@ describe 'sending a birthday present to a customer' do
 
   context 'east' do
     subject { East::BirthdayPresentSelector.new(customer, today) }
-    let(:delivery_service) { double }
     let(:boy) { double(male?: true) }
     let(:girl) { double(male?: false) }
 
@@ -48,15 +47,15 @@ describe 'sending a birthday present to a customer' do
       it 'receives flowers on her birthday' do
         girl.stub(:birthday_on?).with(today) { true }
 
-        delivery_service.should_receive(:deliver).with(:flowers)
-        subject.send_present(delivery_service)
+        girl.should_receive(:receive).with(:flowers)
+        subject.send_present
       end
 
       it 'does not receive a present when it is not her birthday' do
         girl.stub(:birthday_on?).with(today) { false }
 
-        delivery_service.should_not_receive(:deliver)
-        subject.send_present(delivery_service)
+        girl.should_not_receive(:receive)
+        subject.send_present
       end
     end
 
@@ -66,15 +65,15 @@ describe 'sending a birthday present to a customer' do
       it 'receives cufflinks on his birthday' do
         boy.stub(:birthday_on?).with(today) { true }
 
-        delivery_service.should_receive(:deliver).with(:cufflinks)
-        subject.send_present(delivery_service)
+        boy.should_receive(:receive).with(:cufflinks)
+        subject.send_present
       end
 
       it 'does not receive a present when it is not his birthday' do
         boy.stub(:birthday_on?).with(today) { false }
 
-        delivery_service.should_not_receive(:deliver)
-        subject.send_present(delivery_service)
+        boy.should_not_receive(:receive)
+        subject.send_present
       end
     end
   end
@@ -87,20 +86,20 @@ module NonEast
       @today = today
     end
 
-  def present
-    return selected_present if birthday_today?
-    :none
-  end
+    def present
+      return selected_present if birthday_today?
+      :none
+    end
 
-  private
-  def selected_present
-    return :cufflinks if @customer.sex == :male
-    :flowers
-  end
+    private
+    def selected_present
+      return :cufflinks if @customer.sex == :male
+      :flowers
+    end
 
-  def birthday_today?
-    @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
-  end
+    def birthday_today?
+      @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
+    end
   end
 end
 
@@ -111,14 +110,14 @@ module East
       @today = today
     end
 
-  def send_present(delivery_service)
-    delivery_service.deliver(present) if @customer.birthday_on?(@today)
-  end
+    def send_present
+      @customer.receive(present) if @customer.birthday_on?(@today)
+    end
 
-  private
-  def present
-    return :cufflinks if @customer.male?
-    :flowers
-  end
+    private
+    def present
+      return :cufflinks if @customer.male?
+      :flowers
+    end
   end
 end
