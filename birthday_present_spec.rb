@@ -37,12 +37,16 @@ module NonEast
     end
 
     def present
-      if @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
+      if birthday_today?
         return :cufflinks if @customer.sex == :male
         :flowers
       else
         :none
       end
+    end
+
+    def birthday_today?
+      @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
     end
   end
 end
