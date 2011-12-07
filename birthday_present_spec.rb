@@ -44,6 +44,15 @@ describe 'sending a birthday present to a customer' do
       delivery_service.should_receive(:deliver).with(:flowers)
       selector.deliver_present_with(delivery_service)
     end
+
+    it 'sends cufflinks to a male customer on their birthday' do
+      customer = double(male?: true)
+      customer.stub(:birthday_on?).with(today) { true }
+      selector = East::BirthdayPresentSelector.new(customer, today)
+      delivery_service = double
+      delivery_service.should_receive(:deliver).with(:cufflinks)
+      selector.deliver_present_with(delivery_service)
+    end
   end
 end
 
