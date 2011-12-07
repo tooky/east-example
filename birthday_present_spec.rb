@@ -12,11 +12,19 @@ module NonEast
         selector = BirthdayPresentSelector.new(customer, today)
         selector.present.should == :flowers
       end
+
+      it 'sends cufflinks to a male customer on their birthday' do
+        today = Date.parse("2011-10-09")
+        today_20_years_ago = Date.parse("1991-10-09")
+        customer = double(sex: :male, date_of_birth: today_20_years_ago)
+
+        selector = BirthdayPresentSelector.new(customer, today)
+        selector.present.should == :cufflinks
+      end
     end
   end
 
   class BirthdayPresentSelector
-    attr_reader :customer
     def initialize(customer, today = Date.today)
     end
 
