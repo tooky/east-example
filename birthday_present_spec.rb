@@ -1,10 +1,10 @@
 require 'date'
 
 describe 'sending a birthday present to a customer' do
+  let(:today) { Date.parse("2011-10-09") }
   context 'non-east customers' do
     let(:tomorrow_20_years_ago) { Date.parse("1991-10-10") }
     let(:today_20_years_ago) { Date.parse("1991-10-09") }
-    let(:today) { Date.parse("2011-10-09") }
 
     it 'sends flowers to a female customer on their birthday' do
       customer = double(sex: :female, date_of_birth: today_20_years_ago)
@@ -32,6 +32,17 @@ describe 'sending a birthday present to a customer' do
 
       selector = NonEast::BirthdayPresentSelector.new(customer, today)
       selector.present.should == :none
+    end
+  end
+
+  context 'east customers' do
+    it 'sends flowers to a female customer on their birthday' do
+      customer = double(male?: false)
+      customer.stub(:birthday_on?).with(today) { true }
+      selector = East::BirthdayPresentSelector.new(customer, today)
+      delivery_service = double
+      delivery_service.should_receiver(:deliver).with(:flowers)
+      selector.deliver_present_with(delivery_service)
     end
   end
 end
