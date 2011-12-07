@@ -41,7 +41,7 @@ describe 'sending a birthday present to a customer' do
       customer.stub(:birthday_on?).with(today) { true }
       selector = East::BirthdayPresentSelector.new(customer, today)
       delivery_service = double
-      delivery_service.should_receiver(:deliver).with(:flowers)
+      delivery_service.should_receive(:deliver).with(:flowers)
       selector.deliver_present_with(delivery_service)
     end
   end
@@ -67,6 +67,17 @@ module NonEast
 
     def birthday_today?
       @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
+    end
+  end
+end
+
+module East
+  class BirthdayPresentSelector
+    def initialize(customer, today = Date.today)
+    end
+
+    def deliver_present_with(delivery_service)
+      delivery_service.deliver(:flowers)
     end
   end
 end
