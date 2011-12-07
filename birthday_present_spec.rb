@@ -45,7 +45,7 @@ describe 'sending a birthday present to a customer' do
       selector = East::BirthdayPresentSelector.new(girl, today)
 
       delivery_service.should_receive(:deliver).with(:flowers)
-      selector.deliver_present_with(delivery_service)
+      selector.send_present(delivery_service)
     end
 
     it 'sends cufflinks to a male customer on their birthday' do
@@ -53,7 +53,7 @@ describe 'sending a birthday present to a customer' do
       selector = East::BirthdayPresentSelector.new(boy, today)
 
       delivery_service.should_receive(:deliver).with(:cufflinks)
-      selector.deliver_present_with(delivery_service)
+      selector.send_present(delivery_service)
     end
   end
 end
@@ -88,7 +88,7 @@ module East
       @customer = customer
     end
 
-    def deliver_present_with(delivery_service)
+    def send_present(delivery_service)
       delivery_service.deliver(present)
     end
 
