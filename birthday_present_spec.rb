@@ -36,20 +36,22 @@ describe 'sending a birthday present to a customer' do
   end
 
   context 'east customers' do
+    let(:boy) { double(male?: true) }
+    let(:girl) { double(male?: false) }
+    let(:delivery_service) { double }
+
     it 'sends flowers to a female customer on their birthday' do
-      customer = double(male?: false)
-      customer.stub(:birthday_on?).with(today) { true }
-      selector = East::BirthdayPresentSelector.new(customer, today)
-      delivery_service = double
+      girl.stub(:birthday_on?).with(today) { true }
+      selector = East::BirthdayPresentSelector.new(girl, today)
+
       delivery_service.should_receive(:deliver).with(:flowers)
       selector.deliver_present_with(delivery_service)
     end
 
     it 'sends cufflinks to a male customer on their birthday' do
-      customer = double(male?: true)
-      customer.stub(:birthday_on?).with(today) { true }
-      selector = East::BirthdayPresentSelector.new(customer, today)
-      delivery_service = double
+      boy.stub(:birthday_on?).with(today) { true }
+      selector = East::BirthdayPresentSelector.new(boy, today)
+
       delivery_service.should_receive(:deliver).with(:cufflinks)
       selector.deliver_present_with(delivery_service)
     end
