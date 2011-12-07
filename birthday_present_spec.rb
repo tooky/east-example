@@ -94,10 +94,11 @@ module East
   class BirthdayPresentSelector
     def initialize(customer, today = Date.today)
       @customer = customer
+      @today = today
     end
 
     def send_present(delivery_service)
-      delivery_service.deliver(present)
+      delivery_service.deliver(present) if @customer.birthday_on?(@today)
     end
 
     private
