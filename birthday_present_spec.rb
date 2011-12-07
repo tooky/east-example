@@ -33,11 +33,16 @@ module NonEast
   class BirthdayPresentSelector
     def initialize(customer, today = Date.today)
       @customer = customer
+      @today = today
     end
 
     def present
-      return :cufflinks if @customer.sex == :male
-      :flowers
+      if @customer.date_of_birth.month == @today.month && @customer.date_of_birth.mday == @today.mday
+        return :cufflinks if @customer.sex == :male
+        :flowers
+      else
+        :none
+      end
     end
   end
 end
