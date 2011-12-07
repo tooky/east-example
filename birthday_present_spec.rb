@@ -63,6 +63,14 @@ describe 'sending a birthday present to a customer' do
       delivery_service.should_not_receive(:deliver)
       selector.send_present(delivery_service)
     end
+
+    it 'does not send a present to a male customer when it is not their birthday' do
+      boy.stub(:birthday_on?).with(today) { false }
+      selector = East::BirthdayPresentSelector.new(boy, today)
+
+      delivery_service.should_not_receive(:deliver)
+      selector.send_present(delivery_service)
+    end
   end
 end
 
